@@ -2,10 +2,10 @@
   "name": "natures-cravings",
   "version": "1.0.0",
   "description": "Premium Organic Dining Platform",
-  "main": "api/index.js",
   "scripts": {
-    "start": "node server.js",
-    "dev": "node server.js"
+    "build": "echo 'Building static assets...'",
+    "start": "node index.js",
+    "dev": "node index.js"
   },
   "repository": {
     "type": "git",
