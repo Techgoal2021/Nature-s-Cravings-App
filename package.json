@@ -1,0 +1,21 @@
+{
+  "name": "petaverse-assignment-5",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Techgoal2021/Petaverse-Assignment-5.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/Techgoal2021/Petaverse-Assignment-5/issues"
+  },
+  "homepage": "https://github.com/Techgoal2021/Petaverse-Assignment-5#readme"
+}

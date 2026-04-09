@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nature's Cravings - Admin Command Center</title>
+    <link rel="icon" type="image/png" href="./images/favicon.png">
+    <link rel="stylesheet" href="./style.css">
+    <link rel="stylesheet" href="./admin.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
+</head>
+<body>
+    <div class="admin-wrapper">
+        <aside class="admin-sidebar">
+            <div class="admin-logo brand-container" onclick="window.location.href='./index.html'">
+                <img src="./images/favicon.png" alt="NC Emblem" class="brand-logo" style="height: 35px;">
+                <h3 class="food"><span class="Highlight">N</span>C Admin.</h3>
+            </div>
+            <nav class="admin-nav">
+                <a href="#" class="active" data-tab="dashboard"><i class="fa-solid fa-chart-line"></i> Overview</a>
+                <a href="#" data-tab="bookings"><i class="fa-solid fa-calendar-check"></i> Bookings</a>
+                <a href="#" data-tab="orders"><i class="fa-solid fa-box-open"></i> Orders</a>
+                <a href="./index.html"><i class="fa-solid fa-house-user"></i> View Site</a>
+                <a href="#" onclick="AuthSystem.toggleLogin()"><i class="fa-solid fa-right-from-bracket"></i> Logout</a>
+            </nav>
+        </aside>
+
+        <main class="admin-main">
+            <header class="admin-header">
+                <div class="header-info">
+                    <h1>Command Center</h1>
+                    <p id="adminStatus">Welcome back, Administrator</p>
+                </div>
+                <div class="admin-profile">
+                    <span id="adminName">Loading...</span>
+                    <div class="profile-img">A</div>
+                </div>
+            </header>
+
+            <section id="dashboardSection" class="admin-content active">
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <i class="fa-solid fa-calendar-day"></i>
+                        <div class="stat-info">
+                            <h3>Total Bookings</h3>
+                            <p id="totalBookings">0</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <i class="fa-solid fa-clock"></i>
+                        <div class="stat-info">
+                            <h3>Pending Orders</h3>
+                            <p id="pendingOrders">0</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <i class="fa-solid fa-wallet"></i>
+                        <div class="stat-info">
+                            <h3>Est. Revenue</h3>
+                            <p id="estRevenue">$0.00</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="recent-feed">
+                    <div class="feed-header">
+                        <h2>Recent Reservations</h2>
+                        <button onclick="AdminDashboard.loadBookings()">Refresh <i class="fa-solid fa-rotate"></i></button>
+                    </div>
+                    <div class="table-container">
+                        <table id="bookingsTable">
+                            <thead>
+                                <tr>
+                                    <th>Customer</th>
+                                    <th>Date</th>
+                                    <th>Time</th>
+                                    <th>Guests</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody id="bookingsBody">
+                                <tr>
+                                    <td colspan="5" style="text-align:center;">Loading reservations...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Global Scripts -->
+    <script src="./auth.js"></script>
+    <script src="./admin.js"></script>
+</body>
+</html>

@@ -3,110 +3,373 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-    <link rel="stylesheet" href="/plan.css">
+    <title>Meal Plans - Nature's Cravings</title>
+    <link rel="icon" type="image/png" href="./images/favicon.png">
+    <link rel="stylesheet" href="./plan.css">
+    <link rel="stylesheet" href="./style.css"> <!-- Inheritance -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
 </head>
 <body>
-    <h1>Low<span class="hyphen">-</span>Carb</h1>
-    <div class="container-1">
-    <p class="date">This Week's Plan: August 24 - August 30</p>
-    <button class="home-button"><a href="/"><i class="fa-solid fa-house"></i> HOME</a></button>
-    <button><i class="fa-solid fa-print"></i> PRINT THIS PLAN</button>
-</div>
+    <main class="main-page">
+        <nav>
+            <div class="brand-container" onclick="window.location.href='./index.html'">
+                <img src="./images/favicon.png" alt="NC Emblem" class="brand-logo">
+                <h3 class="food" style="white-space: nowrap;"><span class="Highlight">N</span>ature's Cravings.</h3>
+            </div>
+            <ul>
+                <li><a href="./index.html">About Us</a></li>
+                <li><a href="./our-food.html">Our Food</a></li>
+                <li><a href="./plan.html">Plans</a></li>
+                <li><a href="./contactus.html" class="nav-btn">Contact Us</a></li>
+                <li style="margin-left: 15px;">
+                    <div class="account-dropdown">
+                        <a href="#" class="nav-icon-link" aria-label="Account"><i class="fa-regular fa-user"></i></a>
+                        <div class="dropdown-menu">
+                            <a href="#" onclick="AuthSystem.toggleLogin()"><i class="fa-solid fa-right-to-bracket" id="authIcon"></i> <span id="authText">Sign In</span></a>
+                            <a href="./account.html"><i class="fa-solid fa-user"></i> My Account</a>
+                            <a href="./account.html#orders"><i class="fa-solid fa-box-open"></i> Orders</a>
+                            <a href="./account.html#wishlist"><i class="fa-solid fa-heart"></i> Saved Items</a>
+                        </div>
+                    </div>
+                </li>
+            </ul>
+            <div class="nav-actions">
+                <a href="#" class="nav-icon-link" id="navCartBtn" aria-label="Cart" onclick="event.preventDefault(); CartSystem.openDrawer();">
+                    <i class="fa-solid fa-cart-shopping"></i>
+                    <span id="navCartBadge" class="nav-cart-badge" style="display: none;">0</span>
+                </a>
+            </div>
+            <div class="menuu" id="mobileMenuBtn">
+                <svg width="30" height="30" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M4 6H20M4 12H20M4 18H20" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+            </div>
+        </nav>
 
+        <h1>Low<span class="hyphen">-</span>Carb Plans</h1>
+        <div class="container-1" style="display: flex; align-items: center; gap: 15px;">
+            <p class="date">This Week: Nature's Cravings Menu (Apr 5 - Apr 11)</p>
+            <button class="home-button"><a href="./index.html"><i class="fa-solid fa-house"></i> HOME</a></button>
+            <button onclick="window.print()"><i class="fa-solid fa-print"></i> PRINT THIS PLAN</button>
+        </div>
 
     <section>
         <div class="box-grid">
             <div class="frame-images">
-                <img src="/images/large_chili-chicken-1.jpeg" alt="">
+                <img src="./images/large_chili-chicken-1.jpeg" alt="">
                 <div class="content">
                     <h2>Chili Chicken</h2>
-                    <p class="paragraph-1">Mashed Cauliflowers Skillet Garlic <br>
-                        ucchini
+                    <p class="paragraph-1">Mashed Cauliflower Skillet Garlic <br>
+                        Zucchini
                     </p>
                     <p class="paragraph-2">
                     <span>CROWD PLEASER</span><br>
                     1h total time</p>
                 </div>
-                <button><i class="fa-solid fa-cart-shopping"></i> GET INGREDIENTS</button>
-                <div class="view">
+                <button class="ingredient-btn" data-id="1"><i class="fa-solid fa-cart-shopping"></i> GET INGREDIENTS</button>
+                <div class="view recipe-btn" data-id="1" style="cursor: pointer;">
                     <p><i class="fa-solid fa-eye"></i>VIEW RECIPE</p>
                 </div>
             </div>
 
             <div class="frame-images">
-                <img src="/images/images=2.jpeg" alt="">
+                <img src="./images/images=2.jpeg" alt="">
                 <div class="content">
                     <h2>Spicy Ranch Turkey Patties</h2>
-                    <p class="paragraph-1">Sauteed Spinarch with Tomatoes</p>
+                    <p class="paragraph-1">Sauteed Spinach with Tomatoes</p>
                     <p class="paragraph-2"><span>EXTRA LOW CARB</span><br>
                     30m total time</p>
-            </div>
-                <button><i class="fa-solid fa-cart-shopping"></i> GET INGREDIENTS</button>
-                <div class="view">
+                </div>
+                <button class="ingredient-btn" data-id="2"><i class="fa-solid fa-cart-shopping"></i> GET INGREDIENTS</button>
+                <div class="view recipe-btn" data-id="2" style="cursor: pointer;">
                     <p><i class="fa-solid fa-eye"></i> VIEW RECIPE</p>
                 </div>
             </div>
 
             <div class="frame-images">
-                <img src="/images/images-3.jpeg" alt="">
+                <img src="./images/images-3.jpeg" alt="">
                 <div class="content">
                     <h2>Pork Scaloppine</h2>
-                    <p class="paragraph-1">Lemon-Parmesan Spinarch and Kale Salad</p>
+                    <p class="paragraph-1">Lemon-Parmesan Spinach and Kale Salad</p>
                     <p class="paragraph-2"><span>EXTRA LOW CARB</span><br>
                     35m total time</p>
-            </div>
-                <button><i class="fa-solid fa-cart-shopping"></i> GET INGREDIENTS</button>
-                <div class="view">
+                </div>
+                <button class="ingredient-btn" data-id="3"><i class="fa-solid fa-cart-shopping"></i> GET INGREDIENTS</button>
+                <div class="view recipe-btn" data-id="3" style="cursor: pointer;">
                     <p><i class="fa-solid fa-eye"></i> VIEW RECIPE</p>
                 </div>
             </div>
 
             <div class="frame-images">
-                <img src="/images/large_bacon-cheeseburger-nachos-4.jpg" alt="">
+                <img src="./images/large_bacon-cheeseburger-nachos-4.jpg" alt="">
                 <div class="content">
                     <h2>Bacon Cheeseburger "Nachos" </h2>
                     <p class="paragraph-1"><span>ONE-DISH DINNER</span><br>
                     35m total time</p>
                 </div>
-                <button><i class="fa-solid fa-cart-shopping"></i> GET INGREDIENTS</button>
-                <div class="view">
+                <button class="ingredient-btn" data-id="4"><i class="fa-solid fa-cart-shopping"></i> GET INGREDIENTS</button>
+                <div class="view recipe-btn" data-id="4" style="cursor: pointer;">
                     <p><i class="fa-solid fa-eye"></i> VIEW RECIPE</p>
                 </div>
             </div>
 
             <div class="frame-images">
-                <img src="/images/cheesy-beef-rissoles-potato-5.avif" alt="">
+                <img src="./images/cheesy-beef-rissoles-potato-5.avif" alt="">
                 <div class="content">
                     <h2>Grilled Sausage Dogs and<br> Vegetables</h2>
                     <p class="paragraph-1">Garlic Beet Chips</p>
                     <p class="paragraph-2">
                     <span>SUPER EASY</span><br>45m total time</p>
-                    </p>
                 </div>
-                <button><i class="fa-solid fa-cart-shopping"></i> GET INGREDIENTS</button>
-                <div class="view">
+                <button class="ingredient-btn" data-id="5"><i class="fa-solid fa-cart-shopping"></i> GET INGREDIENTS</button>
+                <div class="view recipe-btn" data-id="5" style="cursor: pointer;">
                     <p><i class="fa-solid fa-eye"></i>VIEW RECIPE</p>
                 </div>
             </div>
 
             <div class="frame-images">
-                <img src="/images/large_skillet-lemon-pepper-fish-6.jpg" alt="">
+                <img src="./images/large_skillet-lemon-pepper-fish-6.jpg" alt="">
                 <div class="content">
                     <h2>Skillet Lemon-Pepper Fish</h2>
                     <p class="paragraph-1">Edamame Succotash</p>
                     <p class="paragraph-2">
                     <span>STOVETOP</span><br>45m total time</p>
-                    </p>
                 </div>
-                <button><i class="fa-solid fa-cart-shopping"></i> GET INGREDIENTS</button>
-                <div class="view">
+                <button class="ingredient-btn" data-id="6"><i class="fa-solid fa-cart-shopping"></i> GET INGREDIENTS</button>
+                <div class="view recipe-btn" data-id="6" style="cursor: pointer;">
                 <p><i class="fa-solid fa-eye"></i>VIEW RECIPE</p>
                 </div>
             </div>
         </div>
     </section>
-  
+
+    <!-- Dynamic Recipe/Ingredients Modal -->
+    <div id="planModal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn">&times;</span>
+            <h2 id="modalTitle">Title</h2>
+            <div id="modalBody" style="margin-top: 20px;">
+                <!-- Content injected via JS -->
+            </div>
+        </div>
+    </div>
+    </main>
+
+    <footer class="site-footer">
+        <div class="footer-content">
+            <div class="footer-brand">
+                <h3 class="food" style="white-space: nowrap; cursor: pointer;" onclick="window.location.href='./index.html'"><span class="Highlight">N</span>ature's Cravings.</h3>
+                <p>Nourishing bodies and delighting senses with the finest organic, natural ingredients.</p>
+            </div>
+            <div class="footer-links">
+                <h4>Quick Links</h4>
+                <ul>
+                    <li><a href="./index.html">About Us</a></li>
+                    <li><a href="./our-food.html">Our Food</a></li>
+                    <li><a href="./plan.html">Plans</a></li>
+                    <li><a href="./contactus.html">Contact Us</a></li>
+                </ul>
+            </div>
+            <div class="footer-contact">
+                <h4>Customer Support</h4>
+                <p><a href="mailto:support@naturescravings.com"><i class="fa-solid fa-envelope"></i> support@naturescravings.com</a></p>
+                <p><a href="tel:+18001234567"><i class="fa-solid fa-phone"></i> +1 (800) 123-4567</a></p>
+            </div>
+            <div class="footer-socials">
+                <h4>Follow Us</h4>
+                <div class="social-icons">
+                    <a href="#"><i class="fa-brands fa-facebook-f"></i></a>
+                    <a href="#"><i class="fa-brands fa-instagram"></i></a>
+                    <a href="#"><i class="fa-brands fa-x-twitter"></i></a>
+                </div>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2026 Nature's Cravings. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="./cart.js"></script>
+    <script src="./chatbot.js"></script>
+    <script>
+        // Mobile Menu Logic
+        const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+        const navUl = document.querySelector('nav ul');
+        if (mobileMenuBtn && navUl) {
+            mobileMenuBtn.addEventListener('click', () => {
+                navUl.classList.toggle('show');
+            });
+        }
+        const mealsData = {
+            1: {
+                title: "Chili Chicken",
+                ingredients: [
+                    "2 Boneless Chicken Breasts",
+                    "1 Head of Cauliflower",
+                    "1 Medium Zucchini",
+                    "2 tbsp Olive Oil",
+                    "1 tbsp Chili Powder",
+                    "2 Cloves Garlic (minced)",
+                    "Salt & Pepper to taste"
+                ],
+                recipe: [
+                    "1. Chop the cauliflower into florets and boil until tender. Mash with butter and salt.",
+                    "2. Slice zucchini and sauté in olive oil with minced garlic until golden.",
+                    "3. Rub chicken breasts with chili powder, salt, and pepper.",
+                    "4. Grill or pan-fry chicken for 6-8 minutes per side until cooked through.",
+                    "5. Serve chicken over mashed cauliflower with garlic zucchini on the side."
+                ]
+            },
+            2: {
+                title: "Spicy Ranch Turkey Patties",
+                ingredients: [
+                    "1 lb Ground Turkey",
+                    "1 packet Low-Carb Spicy Ranch Seasoning",
+                    "2 cups Fresh Spinach",
+                    "1 cup Cherry Tomatoes (halved)",
+                    "1 tbsp Avocado Oil"
+                ],
+                recipe: [
+                    "1. In a bowl, mix ground turkey with spicy ranch seasoning.",
+                    "2. Form mixture into 4 equal-sized patties.",
+                    "3. Heat avocado oil in a skillet over medium-high heat. Cook patties for 5 minutes per side.",
+                    "4. Remove patties and lower heat. Add spinach and cherry tomatoes to the skillet.",
+                    "5. Sauté until spinach wilts (around 2 minutes) and serve alongside hot patties."
+                ]
+            },
+            3: {
+                title: "Pork Scaloppine",
+                ingredients: [
+                    "4 Thin-Cut Pork Chops",
+                    "1/4 cup Almond Flour (for dredging)",
+                    "2 tbsp Butter",
+                    "1 Lemon (juiced)",
+                    "2 cups Kale and Spinach mix",
+                    "1/4 cup Parmesan Cheese (grated)",
+                    "Olive Oil"
+                ],
+                recipe: [
+                    "1. Season pork chops with salt and pepper, then lightly dredge in almond flour.",
+                    "2. Melt butter in a large skillet over medium-high heat.",
+                    "3. Sear pork chops for 2-3 minutes per side until golden. Drizzle with fresh lemon juice.",
+                    "4. Toss kale and spinach mix with olive oil, a squeeze of lemon, and grated parmesan.",
+                    "5. Plate the pork scaloppine immediately with the fresh salad."
+                ]
+            },
+            4: {
+                title: "Bacon Cheeseburger Nachos",
+                ingredients: [
+                    "1 lb Lean Ground Beef",
+                    "4 strips Bacon (cooked and crumbled)",
+                    "1 cup Cheddar Cheese (shredded)",
+                    "1 cup Mini Bell Peppers (halved, seeds removed - acting as chips)",
+                    "1/4 cup Sugar-free Ketchup",
+                    "Pickles and Onions for garnish"
+                ],
+                recipe: [
+                    "1. Preheat oven to 400°F (200°C).",
+                    "2. Brown the ground beef in a skillet and drain excess fat.",
+                    "3. Arrange bell pepper halves on a baking sheet and top with cooked ground beef.",
+                    "4. Sprinkle shredded cheddar cheese and crumbled bacon over the top.",
+                    "5. Bake for 5-7 minutes until cheese is melted and bubbly. Garnish with pickles and onions."
+                ]
+            },
+            5: {
+                title: "Grilled Sausage Dogs and Vegetables",
+                ingredients: [
+                    "4 Low-Carb Beef or Turkey Sausages",
+                    "1 large Red Bell Pepper (sliced)",
+                    "1 Yellow Onion (sliced)",
+                    "2 large Beets",
+                    "1 tbsp Garlic Seasoning",
+                    "Olive Oil"
+                ],
+                recipe: [
+                    "1. Preheat grill or grill pan to medium-high heat.",
+                    "2. Slice beets thin, toss in olive oil and garlic seasoning, and bake at 375°F for 20 mins until crisp.",
+                    "3. Toss sliced bell pepper and onion in olive oil and grill until charred.",
+                    "4. Grill sausages for 8-10 minutes, turning occasionally until browned and cooked through.",
+                    "5. Serve sausages hot topped with grilled veggies, accompanied by garlic beet chips."
+                ]
+            },
+            6: {
+                title: "Skillet Lemon-Pepper Fish",
+                ingredients: [
+                    "2 White Fish Fillets (Cod or Tilapia)",
+                    "1 tbsp Lemon Pepper Seasoning",
+                    "1 cup Edamame beans (shelled)",
+                    "1/2 cup Corn kernels",
+                    "1/2 cup Cherry Tomatoes (diced)",
+                    "1 tbsp Butter"
+                ],
+                recipe: [
+                    "1. Season the fish fillets generously with lemon pepper seasoning on both sides.",
+                    "2. Heat butter in a skillet over medium heat.",
+                    "3. Pan-fry the fish for 3-4 minutes per side until opaque and flaky, then set aside.",
+                    "4. In the same skillet, add edamame, corn, and cherry tomatoes. Sauté for 5 minutes.",
+                    "5. Plate the lemon-pepper fish and serve over the warm edamame succotash."
+                ]
+            }
+        };
+
+        const modal = document.getElementById('planModal');
+        const modalTitle = document.getElementById('modalTitle');
+        const modalBody = document.getElementById('modalBody');
+        const closeBtn = document.querySelector('.close-btn');
+
+        document.querySelectorAll('.ingredient-btn, .recipe-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const targetBtn = e.target.closest('[data-id]');
+                if (!targetBtn) return;
+                
+                const id = targetBtn.getAttribute('data-id');
+                const isRecipe = targetBtn.classList.contains('recipe-btn');
+                const data = mealsData[id];
+                
+                if (!data) return;
+
+                modalTitle.innerText = data.title + (isRecipe ? " - Recipe" : " - Ingredients");
+                modalBody.innerHTML = '';
+
+                const list = document.createElement(isRecipe ? 'ol' : 'ul');
+                list.style.paddingLeft = '20px';
+                list.style.color = '#5b6b63';
+                list.style.lineHeight = '1.8';
+                list.style.fontSize = '1.1rem';
+                
+                const items = isRecipe ? data.recipe : data.ingredients;
+                items.forEach(item => {
+                    const li = document.createElement('li');
+                    li.innerText = isRecipe ? item.substring(item.indexOf('.') + 2) : item; 
+                    li.style.marginBottom = '12px';
+                    list.appendChild(li);
+                });
+
+                modalBody.appendChild(list);
+                modal.classList.add('show');
+            });
+        });
+
+        // Close Modal
+        closeBtn.onclick = () => modal.classList.remove('show');
+        window.onclick = (e) => {
+            if (e.target == modal) modal.classList.remove('show');
+        };
+
+        // Dynamic Weekly Date Calculation
+        const dateEl = document.querySelector('.date');
+        if (dateEl) {
+            const today = new Date();
+            const startOfWeek = new Date(today);
+            startOfWeek.setDate(today.getDate() - today.getDay());
+            
+            const endOfWeek = new Date(today);
+            endOfWeek.setDate(today.getDate() + (6 - today.getDay()));
+            
+            const options = { month: 'short', day: 'numeric' };
+            dateEl.innerText = `This Week: Nature's Cravings Menu (${startOfWeek.toLocaleDateString('en-US', options)} - ${endOfWeek.toLocaleDateString('en-US', options)})`;
+        }
+    </script>
+    <script src="./auth.js"></script>
 </body>
 </html>

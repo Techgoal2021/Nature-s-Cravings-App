@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nature's Cravings - My Account</title>
+    <link rel="icon" type="image/png" href="./images/favicon.png">
+    <link rel="stylesheet" href="./style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
+    <style>
+        body { background: #f6f3eb; }
+        .dashboard-container {
+            max-width: 1100px;
+            margin: 50px auto;
+            padding: 0 40px;
+            display: grid;
+            grid-template-columns: 250px 1fr;
+            gap: 40px;
+            min-height: 60vh;
+        }
+        .sidebar-menu {
+            background: white;
+            border-radius: 16px;
+            padding: 30px 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+            height: max-content;
+            overflow: hidden; /* Prevent internal element overflow */
+        }
+        .sidebar-menu h2 {
+            font-size: 1.2rem;
+            color: #1c3f2d;
+            margin-bottom: 25px;
+            text-align: center;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            width: 100%;
+        }
+        .sidebar-menu a {
+            display: block;
+            padding: 15px 20px;
+            color: #5b6b63;
+            text-decoration: none;
+            font-weight: 600;
+            border-radius: 8px;
+            margin-bottom: 5px;
+            transition: all 0.2s;
+        }
+        .sidebar-menu a:hover, .sidebar-menu a.active {
+            background: #f6f3eb;
+            color: #e58f27;
+        }
+        .sidebar-menu a i { width: 25px; }
+
+        .dashboard-content {
+            background: white;
+            border-radius: 16px;
+            padding: 40px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+            word-wrap: break-word; /* Fix for long emails/text */
+            overflow-wrap: break-word;
+            min-width: 0; /* Ensures flex/grid items can shrink */
+        }
+        .dashboard-content p {
+            max-width: 100%;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .panel { display: none; }
+        .panel.active { display: block; animation: fadeIn 0.4s ease; }
+
+        .panel-header {
+            font-size: 1.8rem;
+            color: #1c3f2d;
+            margin-bottom: 30px;
+            border-bottom: 2px solid #f6f3eb;
+            padding-bottom: 15px;
+        }
+
+        .stat-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+        .stat-card {
+            background: #1c3f2d;
+            color: white;
+            padding: 25px;
+            border-radius: 12px;
+            text-align: center;
+        }
+        .stat-card h3 { font-size: 2.5rem; margin: 0 0 10px 0; color: #e58f27; }
+
+        table { width: 100%; border-collapse: collapse; }
+        th, td { padding: 15px; text-align: left; border-bottom: 1px solid #eee; }
+        th { color: #5b6b63; font-weight: 600; }
+        .badge { background: #e58f27; color: white; padding: 4px 10px; border-radius: 12px; font-size: 0.8rem; }
+
+        .wishlist-grid { display: flex; flex-wrap: wrap; gap: 15px; }
+        .wishlist-item { background: #f6f3eb; padding: 15px 25px; border-radius: 30px; font-weight: 600; color: #1c3f2d; }
+
+        @media (max-width: 768px) {
+            .dashboard-container { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <header class="main-page">
+        <nav>
+            <div class="brand-container" onclick="window.location.href='./index.html'">
+                <img src="./images/favicon.png" alt="NC Emblem" class="brand-logo">
+                <h3 style="white-space: nowrap;"><span class="Highlight">N</span>ature's Cravings.</h3>
+            </div>
+            <ul>
+                <li><a href="./index.html">About Us</a></li>
+                <li><a href="./our-food.html">Our Food</a></li>
+                <li><a href="./plan.html">Plans</a></li>
+                <li><a href="./contactus.html" class="nav-btn" role="button">Contact Us</a></li>
+                <li style="margin-left: 15px;">
+                    <div class="account-dropdown">
+                        <a href="#" class="nav-icon-link" aria-label="Account" style="color: #e58f27;"><i class="fa-regular fa-user"></i></a>
+                        <div class="dropdown-menu">
+                            <a href="#" onclick="AuthSystem.toggleLogin()"><i class="fa-solid fa-right-to-bracket" id="authIcon"></i> <span id="authText">Sign In</span></a>
+                            <a href="./account.html"><i class="fa-solid fa-user"></i> My Account</a>
+                        </div>
+                    </div>
+                </li>
+            </ul>
+        </nav>
+    </header>
+
+    <div class="dashboard-container">
+        <!-- Sidebar -->
+        <div class="sidebar-menu">
+            <h2>Welcome, <span id="userName">Guest</span></h2>
+            <a href="#" onclick="switchPanel('overview')" id="nav-overview" class="active"><i class="fa-solid fa-chart-pie"></i> Overview</a>
+            <a href="#" onclick="switchPanel('orders')" id="nav-orders"><i class="fa-solid fa-box-open"></i> Orders History</a>
+            <a href="#" onclick="switchPanel('wishlist')" id="nav-wishlist"><i class="fa-solid fa-heart"></i> Saved Items</a>
+            <a href="#" onclick="AuthSystem.toggleLogin()" style="color: #d32f2f; margin-top: 30px;"><i class="fa-solid fa-right-from-bracket"></i> Edit Session</a>
+        </div>
+
+        <!-- Content -->
+        <div class="dashboard-content" id="secureBlock" style="display: none;">
+            <!-- Overview -->
+            <div id="panel-overview" class="panel active">
+                <h2 class="panel-header">Account Overview</h2>
+                <p><a href="mailto:support@naturescravings.com"><i class="fa-solid fa-envelope"></i> support@naturescravings.com</a></p>
+                <p><a href="tel:+18001234567"><i class="fa-solid fa-phone"></i> +1 (800) 123-4567</a></p>
+                <div class="stat-grid">
+                    <div class="stat-card">
+                        <h3 id="statOrders">0</h3>
+                        <p>Total Orders</p>
+                    </div>
+                    <div class="stat-card">
+                        <h3 id="statWishlist">0</h3>
+                        <p>Saved Recipes</p>
+                    </div>
+                </div>
+                <p>Welcome to your Nature's Cravings control center. Here you can track your past meal purchases and monitor your highlighted menus!</p>
+            </div>
+
+            <!-- Orders -->
+            <div id="panel-orders" class="panel">
+                <h2 class="panel-header">Recent Orders</h2>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Order ID</th>
+                            <th>Date</th>
+                            <th>Status</th>
+                            <th>Total</th>
+                        </tr>
+                    </thead>
+                    <tbody id="ordersTableBody">
+                        <!-- Populated by JS -->
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Wishlist -->
+            <div id="panel-wishlist" class="panel">
+                <h2 class="panel-header">My Wishlist</h2>
+                <div class="wishlist-grid" id="wishlistContainer">
+                    <!-- Populated by JS -->
+                </div>
+            </div>
+        </div>
+        
+        <div id="loginPrompt" style="text-align: center; padding: 60px;">
+            <i class="fa-solid fa-lock" style="font-size: 3rem; color: #ccc; margin-bottom: 20px;"></i>
+            <h2>Authentication Required</h2>
+            <p>Please use the Account Dropdown top-right to "Sign In / Join" to view this secure dashboard.</p>
+        </div>
+    </div>
+
+    <script src="./auth.js"></script>
+    <script src="./cart.js"></script>
+    <script>
+        function switchPanel(panelId) {
+            document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+            document.querySelectorAll('.sidebar-menu a').forEach(a => a.classList.remove('active'));
+            document.getElementById('panel-' + panelId).classList.add('active');
+            document.getElementById('nav-' + panelId).classList.add('active');
+        }
+
+        function renderDashboard() {
+            const user = JSON.parse(localStorage.getItem('nc_user'));
+            if (!user) return;
+
+            document.getElementById('loginPrompt').style.display = 'none';
+            document.getElementById('secureBlock').style.display = 'block';
+            document.getElementById('userName').innerText = user.name.split(' ')[0];
+
+            // Load Orders
+            const orders = JSON.parse(localStorage.getItem('nc_orders') || '[]');
+            document.getElementById('statOrders').innerText = orders.length;
+            
+            const tbody = document.getElementById('ordersTableBody');
+            if (orders.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="4">No orders placed yet.</td></tr>';
+            } else {
+                tbody.innerHTML = orders.reverse().map(o => `
+                    <tr>
+                        <td><strong>${o.id}</strong></td>
+                        <td>${o.date}</td>
+                        <td><span class="badge">Processing</span></td>
+                        <td>${o.total}</td>
+                    </tr>
+                `).join('');
+            }
+
+            // Load Wishlist
+            const req = JSON.parse(localStorage.getItem('nc_wishlist') || '[]');
+            document.getElementById('statWishlist').innerText = req.length;
+            
+            const wcont = document.getElementById('wishlistContainer');
+            if (req.length === 0) {
+                wcont.innerHTML = '<p>No meals saved yet! Go to "Our Food" to heart items.</p>';
+            } else {
+                wcont.innerHTML = req.map(i => `<div class="wishlist-item"><i class="fa-solid fa-heart" style="color: #e58f27;"></i> ${i}</div>`).join('');
+            }
+
+            // Deep-link check
+            if(window.location.hash) {
+                const targetPanel = window.location.hash.substring(1);
+                if(['overview', 'orders', 'wishlist'].includes(targetPanel)) {
+                    switchPanel(targetPanel);
+                }
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', renderDashboard);
+    </script>
+</body>
+</html>

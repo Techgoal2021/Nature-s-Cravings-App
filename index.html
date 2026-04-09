@@ -1,43 +1,213 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-    <link rel="stylesheet" href="/style.css">
+    <title>Nature's Cravings - Pure Organic Dining</title>
+    <meta name="description" content="Discover fresh, healthy, and organic meals delivered straight to your door or book a table for an unforgettable dining experience.">
+    <!-- OpenGraph Tags -->
+    <meta property="og:title" content="Nature's Cravings - Organic Goodness">
+    <meta property="og:description" content="Nourishing bodies and delighting senses with the finest natural ingredients.">
+    <meta property="og:image" content="./images/favicon.png">
+    <meta property="og:type" content="website">
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="./images/favicon.png">
+    <link rel="stylesheet" href="./style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
 </head>
+
 <body>
     <header class="main-page">
-            <nav>
-                <h3 class="food"><span class="Highlight">F</span>ood.</h3>
-                <ul>
-                    <li><a href="/index.html">About Us</a></li>
-                    <li><a href="/our-food.html">Our Food</a></li>
-                    <li><a href="/plan.html">Plans</a></li>
-                    <li><a href="/contactus.html" class="nav-btn" role="button">Contact Us</a></li>
-                </ul>
-                <div class="menuu"><img src="./images/menu.png" alt=""></div>
-            </nav>
-    <div class="content">
-        <div class="bio">
-            <h2 class="comment">Discover Healthy and <br>
-            Natural <span style="color: goldenrod;">Food</span></h2>
-            <p class="letters"> Lorem ipsum dolor sit amet consectetur adipisicing elit,sed do</p>
-            <p class="letters">eiusmad tempor inciddont at labore et dolore magna aliqua Ut</p>
-            <p class="letters">chim ad minim veriiam, quis nostud</p>
+        <nav>
+            <div class="brand-container" onclick="window.location.href='./index.html'">
+                <img src="./images/favicon.png" alt="NC Emblem" class="brand-logo">
+                <h3 class="food" style="white-space: nowrap;"><span class="Highlight">N</span>ature's Cravings.</h3>
             </div>
-            <div class="img">
-            <img src="/images/vecteezy_salad-of-green-beans-and-meat.png" alt="stake-meal">
+            <ul>
+                <li><a href="./index.html">About Us</a></li>
+                <li><a href="./our-food.html">Our Food</a></li>
+                <li><a href="./plan.html">Plans</a></li>
+                <li><a href="./contactus.html" class="nav-btn" role="button">Contact Us</a></li>
+                <li style="margin-left: 15px;">
+                    <div class="account-dropdown">
+                        <a href="#" class="nav-icon-link" aria-label="Account"><i class="fa-regular fa-user"></i></a>
+                        <div class="dropdown-menu">
+                            <a href="#" onclick="AuthSystem.toggleLogin()"><i class="fa-solid fa-right-to-bracket" id="authIcon"></i> <span id="authText">Sign In</span></a>
+                            <a href="./account.html"><i class="fa-solid fa-user"></i> My Account</a>
+                            <a href="./account.html#orders"><i class="fa-solid fa-box-open"></i> Orders</a>
+                            <a href="./account.html#wishlist"><i class="fa-solid fa-heart"></i> Saved Items</a>
+                        </div>
+                    </div>
+                </li>
+            </ul>
+            <div class="nav-actions">
+                <a href="#" class="nav-icon-link" id="navCartBtn" aria-label="Cart" onclick="event.preventDefault(); CartSystem.openDrawer();">
+                    <i class="fa-solid fa-cart-shopping"></i>
+                    <span id="navCartBadge" class="nav-cart-badge" style="display: none;">0</span>
+                </a>
+            </div>
+            <div class="menuu" id="mobileMenuBtn">
+                <svg width="30" height="30" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M4 6H20M4 12H20M4 18H20" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+            </div>
+        </nav>
+        <div class="hero-wrapper">
+            <div class="content">
+                <div class="bio">
+                    <h2 class="comment">Discover Healthy and <br>
+                        Natural <span style="color: goldenrod;">Food</span></h2>
+                    <p class="letters">Experience the perfect harmony of health and flavor. We source the finest organic</p>
+                <p class="letters">ingredients to create meals that nourish your body and delight your senses.</p>
+                <p class="letters">Join us for a journey of natural dining that's as delicious as it is nutritious.</p>
+                </div>
+                <div class="img">
+                    <img src="./images/vecteezy_salad-of-green-beans-and-meat.png" alt="stake-meal">
+                </div>
+            </div>
+            <div class="buttn">
+                <button class="book-btn" id="openBookingBtn">Book a Table</button>
+                <form action="./plan.html">
+                    <button class="view-btn" type="submit">View Menu</button>
+                </form>
+            </div> 
+        </div>
+
+        <!-- Mega Chicken Inspired Category Blocks -->
+        <div class="mega-categories-wrapper">
+            <div class="mega-categories-header">
+                <h2>Our Food Categories</h2>
+            </div>
+            <div class="mega-categories">
+                <div class="mega-card">
+                    <img src="./images/Greek%20Salad.webp" class="mega-img" alt="Salads">
+                    <div class="mega-overlay">
+                        <h3 class="mega-title">Organic Salads</h3>
+                        <a href="./salads.html" class="mega-action">Taste it <i class="fa-solid fa-arrow-right"></i></a>
+                    </div>
+                </div>
+                <div class="mega-card">
+                    <img src="./images/Beef%20Burger.jpg" class="mega-img" alt="Fast Food">
+                    <div class="mega-overlay">
+                        <h3 class="mega-title">Premium Grills</h3>
+                        <a href="./grills.html" class="mega-action">Grab yours <i class="fa-solid fa-arrow-right"></i></a>
+                    </div>
+                </div>
+                <div class="mega-card">
+                    <img src="./images/Fresh%20Fruit%20Smoothie.jpg" class="mega-img" alt="Drinks">
+                    <div class="mega-overlay">
+                        <h3 class="mega-title">Fresh Smoothies</h3>
+                        <a href="./drinks.html" class="mega-action">Get a treat <i class="fa-solid fa-arrow-right"></i></a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    <!-- Booking Modal -->
+    <div id="bookingModal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn">&times;</span>
+            <h2>Reserve Your Table</h2>
+            <p>Experience the finest natural flavors at Nature's Cravings.</p>
+            <form id="bookingForm">
+                <input type="text" id="bookName" placeholder="Your Name" required>
+                <input type="email" id="bookEmail" placeholder="Email Address (Optional)">
+                <input type="tel" id="bookPhone" placeholder="Phone Number (Optional)">
+                <div class="form-row">
+                    <input type="datetime-local" id="bookDate" required>
+                    <input type="number" id="bookGuests" placeholder="Guests" min="1" max="20" required>
+                </div>
+                <button type="submit" id="confirmBookingBtn">Confirm Reservation</button>
+            </form>
+            <div id="bookingStatus" style="margin-top: 15px; text-align: center; display: none;"></div>
         </div>
     </div>
-    <div class="buttn">
-            <form action="/our-food.html">
-                    <button class="book-btn" type="submit">Book a Table</button>
-            </form>
-             <form action="/plan.html">
-                    <button class="view-btn" type="submit">View Menu</button>
-            </form>
-    </div> 
-    </header>
+    </div> <!-- Ensure wrapper closes cleanly -->
+    
+    <footer class="site-footer">
+        <div class="footer-content">
+            <div class="footer-brand">
+                <h3 style="cursor: pointer;" onclick="window.location.href='./index.html'"><span class="Highlight">N</span>ature's Cravings.</h3>
+                <p>Nourishing bodies and delighting senses with the finest organic, natural ingredients.</p>
+            </div>
+            <div class="footer-links">
+                <h4>Quick Links</h4>
+                <ul>
+                    <li><a href="./index.html">About Us</a></li>
+                    <li><a href="./our-food.html">Our Food</a></li>
+                    <li><a href="./plan.html">Plans</a></li>
+                    <li><a href="./contactus.html">Contact Us</a></li>
+                </ul>
+            </div>
+            <div class="footer-contact">
+              <h4>Customer Support</h4>
+              <p><a href="mailto:support@naturescravings.com"><i class="fa-solid fa-envelope"></i> support@naturescravings.com</a></p>
+              <p><a href="tel:+18001234567"><i class="fa-solid fa-phone"></i> +1 (800) 123-4567</a></p>
+          </div>
+          <div class="footer-socials">
+                <h4>Follow Us</h4>
+                <div class="social-icons">
+                    <a href="#"><i class="fa-brands fa-facebook-f"></i></a>
+                    <a href="#"><i class="fa-brands fa-instagram"></i></a>
+                    <a href="#"><i class="fa-brands fa-x-twitter"></i></a>
+                </div>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2026 Nature's Cravings. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="./cart.js"></script>
+    <script src="./chatbot.js"></script>
+    <script src="./auth.js"></script>
+    <script>
+        const modal = document.getElementById('bookingModal');
+        const openBtn = document.getElementById('openBookingBtn');
+        const closeBtn = document.querySelector('.close-btn');
+        const bookingForm = document.getElementById('bookingForm');
+        const statusMsg = document.getElementById('bookingStatus');
+        
+        // Mobile Menu Logic
+        const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+        const navUl = document.querySelector('nav ul');
+        
+        mobileMenuBtn.addEventListener('click', () => {
+            navUl.classList.toggle('show');
+        });
+
+        // Open Modal
+        openBtn.onclick = () => modal.classList.add('show');
+
+        // Close Modal
+        closeBtn.onclick = () => modal.classList.remove('show');
+        window.onclick = (event) => {
+            if (event.target == modal) modal.classList.remove('show');
+        }
+
+        // Handle Booking
+        bookingForm.onsubmit = async (e) => {
+            e.preventDefault();
+            
+            const btn = document.getElementById('confirmBookingBtn');
+            btn.disabled = true;
+            
+            // Push a Reservation Deposit into the shopping cart
+            addToCart('Table Reservation Deposit', 5.00);
+
+            statusMsg.style.display = 'block';
+            statusMsg.style.color = '#2E7D32';
+            statusMsg.innerText = 'Reservation added to your cart! Preparing checkout...';
+            
+            setTimeout(() => {
+                CartSystem.openDrawer();
+                btn.disabled = false;
+                statusMsg.style.display = 'none';
+                modal.classList.remove('show');
+            }, 1000);
+        };
+    </script>
 </body>
+
 </html>
