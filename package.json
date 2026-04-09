@@ -1,21 +1,21 @@
 {
-  "name": "petaverse-assignment-5",
+  "name": "natures-cravings",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "description": "Premium Organic Dining Platform",
+  "main": "api/index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "node server.js",
+    "dev": "node server.js"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Techgoal2021/Petaverse-Assignment-5.git"
+    "url": "git+https://github.com/Techgoal2021/Nature-s-Cravings-App.git"
   },
-  "keywords": [],
+  "keywords": [
+    "organic",
+    "food",
+    "restaurant"
+  ],
   "author": "",
-  "license": "ISC",
-  "type": "commonjs",
-  "bugs": {
-    "url": "https://github.com/Techgoal2021/Petaverse-Assignment-5/issues"
-  },
-  "homepage": "https://github.com/Techgoal2021/Petaverse-Assignment-5#readme"
+  "license": "ISC"
 }
