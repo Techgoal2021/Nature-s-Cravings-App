@@ -2,11 +2,6 @@
   "name": "natures-cravings",
   "version": "1.0.0",
   "description": "Premium Organic Dining Platform",
-  "scripts": {
-    "build": "echo 'Building static assets...'",
-    "start": "node index.js",
-    "dev": "node index.js"
-  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/Techgoal2021/Nature-s-Cravings-App.git"
