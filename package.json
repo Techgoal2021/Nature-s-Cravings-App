@@ -11,6 +11,10 @@
     "food",
     "restaurant"
   ],
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
   "author": "",
   "license": "ISC"
 }

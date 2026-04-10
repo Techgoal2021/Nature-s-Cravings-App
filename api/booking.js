@@ -25,7 +25,13 @@ module.exports = async (req, res) => {
     req.on('data', chunk => body += chunk.toString());
     req.on('end', async () => {
         try {
-            const data = JSON.parse(body);
+            const data = JSON.parse(body || '{}');
+            if (!data.email || !data.bookingDate) {
+                res.writeHead(400, { 'Content-Type': 'application/json' });
+                res.end(JSON.stringify({ error: 'Missing required booking details' }));
+                return;
+            }
+
             const postData = JSON.stringify({
                 name: data.name,
                 email: data.email,
@@ -53,9 +59,11 @@ module.exports = async (req, res) => {
                 supabaseRes.on('data', d => responseBody += d);
                 supabaseRes.on('end', () => {
                     if (supabaseRes.statusCode >= 200 && supabaseRes.statusCode < 300) {
+                        console.log(`[BOOKING SUCCESS] User: ${data.email}`);
                         res.writeHead(supabaseRes.statusCode, { 'Content-Type': 'application/json' });
                         res.end(JSON.stringify({ success: true, message: 'Reservation confirmed!' }));
                     } else {
+                        console.warn(`[BOOKING FAILED] Status: ${supabaseRes.statusCode}`, responseBody);
                         res.writeHead(supabaseRes.statusCode, { 'Content-Type': 'application/json' });
                         res.end(responseBody);
                     }
@@ -63,15 +71,17 @@ module.exports = async (req, res) => {
             });
 
             supabaseReq.on('error', (e) => {
-                res.writeHead(500);
-                res.end(JSON.stringify({ error: 'Failed to process booking' }));
+                console.error("[BOOKING NETWORK ERROR]", e.message);
+                res.writeHead(500, { 'Content-Type': 'application/json' });
+                res.end(JSON.stringify({ error: 'Failed to process booking due to network error' }));
             });
 
             supabaseReq.write(postData);
             supabaseReq.end();
         } catch (err) {
-            res.writeHead(400);
-            res.end(JSON.stringify({ error: 'Invalid JSON' }));
+            console.error("[BOOKING JSON ERROR]", err);
+            res.writeHead(400, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify({ error: 'Invalid JSON request' }));
         }
     });
 };

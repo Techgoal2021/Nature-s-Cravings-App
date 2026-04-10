@@ -251,6 +251,15 @@
         }
 
         document.addEventListener('DOMContentLoaded', renderDashboard);
+        // Re-render dashboard immediately when user signs in without a page reload
+        document.addEventListener('authStateChanged', (e) => {
+            if (e.detail && e.detail.isLoggedIn) {
+                renderDashboard();
+            } else {
+                document.getElementById('loginPrompt').style.display = 'block';
+                document.getElementById('secureBlock').style.display = 'none';
+            }
+        });
     </script>
 </body>
 </html>

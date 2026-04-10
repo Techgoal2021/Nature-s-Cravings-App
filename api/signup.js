@@ -25,7 +25,13 @@ module.exports = async (req, res) => {
     req.on('data', chunk => body += chunk.toString());
     req.on('end', async () => {
         try {
-            const data = JSON.parse(body);
+            const data = JSON.parse(body || '{}');
+            if (!data.email || !data.password) {
+                res.writeHead(400, { 'Content-Type': 'application/json' });
+                res.end(JSON.stringify({ error: 'Missing email or password' }));
+                return;
+            }
+
             const postData = JSON.stringify({ email: data.email, password: data.password });
 
             const options = {
@@ -45,12 +51,18 @@ module.exports = async (req, res) => {
                 let responseBody = '';
                 supabaseRes.on('data', d => responseBody += d);
                 supabaseRes.on('end', () => {
+                    if (supabaseRes.statusCode >= 200 && supabaseRes.statusCode < 300) {
+                        console.log(`[SIGNUP SUCCESS] New User: ${data.email}`);
+                    } else {
+                        console.warn(`[SIGNUP FAILED] Status: ${supabaseRes.statusCode}`, responseBody);
+                    }
                     res.writeHead(supabaseRes.statusCode, { 'Content-Type': 'application/json' });
                     res.end(responseBody);
                 });
             });
 
             supabaseReq.on('error', (e) => {
+                console.error("[SIGNUP NETWORK ERROR]", e.message);
                 res.writeHead(500, { 'Content-Type': 'application/json' });
                 res.end(JSON.stringify({ error: 'Network Error connecting to Supabase' }));
             });
@@ -58,8 +70,9 @@ module.exports = async (req, res) => {
             supabaseReq.write(postData);
             supabaseReq.end();
         } catch (err) {
-            res.writeHead(400);
-            res.end(JSON.stringify({ error: 'Invalid JSON' }));
+            console.error("[SIGNUP JSON ERROR]", err);
+            res.writeHead(400, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify({ error: 'Invalid JSON request' }));
         }
     });
 };

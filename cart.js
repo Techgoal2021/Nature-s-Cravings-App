@@ -280,7 +280,7 @@ const CartSystem = {
             });
             localStorage.setItem('nc_orders', JSON.stringify(pastOrders));
 
-            const res = await fetch('http://localhost:3000/api/initiate-payment', {
+            const res = await fetch('/api/initiate-payment', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ amount })
@@ -291,7 +291,7 @@ const CartSystem = {
             try {
                 data = JSON.parse(responseText);
             } catch(e) {
-                throw new Error("Server did not return valid JSON. Ensure your node server is running! Output: " + responseText.substring(0, 50));
+                throw new Error('Server returned an unexpected response. Make sure the Node.js server is running.');
             }
 
             if (!res.ok || !data.success) {
