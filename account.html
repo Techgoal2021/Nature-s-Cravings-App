@@ -204,13 +204,31 @@
             document.getElementById('nav-' + panelId).classList.add('active');
         }
 
-        function renderDashboard() {
-            const user = JSON.parse(localStorage.getItem('nc_user'));
-            if (!user) return;
+        function renderDashboard(forceUser) {
+            const user = forceUser || JSON.parse(localStorage.getItem('nc_user'));
+            if (!user) {
+                document.getElementById('loginPrompt').style.display = 'block';
+                document.getElementById('secureBlock').style.display = 'none';
+                return;
+            }
 
             document.getElementById('loginPrompt').style.display = 'none';
             document.getElementById('secureBlock').style.display = 'block';
-            document.getElementById('userName').innerText = user.name.split(' ')[0];
+            
+            // Render Welcome Name
+            if (user) {
+                let firstName = 'Guest';
+                if (user.user_metadata && user.user_metadata.first_name) {
+                    firstName = user.user_metadata.first_name;
+                } else {
+                    const email = user.email || user.name || '';
+                    const emailPart = email.split('@')[0];
+                    const namePart = emailPart.split('.')[0].split('_')[0].split('-')[0];
+                    firstName = namePart.charAt(0).toUpperCase() + namePart.slice(1).toLowerCase();
+                }
+                const un = document.getElementById('userName');
+                if (un) un.innerText = firstName;
+            }
 
             // Load Orders
             const orders = JSON.parse(localStorage.getItem('nc_orders') || '[]');
@@ -250,14 +268,14 @@
             }
         }
 
-        document.addEventListener('DOMContentLoaded', renderDashboard);
-        // Re-render dashboard immediately when user signs in without a page reload
+        // document.addEventListener('DOMContentLoaded', renderDashboard); // Removed to avoid race conditions with auth.js
+        
+        // Re-render dashboard immediately when user signs in or session is restored
         document.addEventListener('authStateChanged', (e) => {
             if (e.detail && e.detail.isLoggedIn) {
-                renderDashboard();
+                renderDashboard(e.detail.user);
             } else {
-                document.getElementById('loginPrompt').style.display = 'block';
-                document.getElementById('secureBlock').style.display = 'none';
+                renderDashboard(null);
             }
         });
     </script>

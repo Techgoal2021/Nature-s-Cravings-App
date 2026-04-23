@@ -15,50 +15,64 @@ module.exports = async (req, res) => {
         return;
     }
 
-    let body = '';
-    req.on('data', chunk => body += chunk.toString());
-    req.on('end', async () => {
-        try {
-            const data = JSON.parse(body || '{}');
-            if (!data.amount) {
-                res.writeHead(400, { 'Content-Type': 'application/json' });
-                res.end(JSON.stringify({ error: 'Missing payment amount' }));
-                return;
+    // ── Parse body: Vercel provides req.body; local server.js streams manually ──
+    let data;
+    if (req.body && typeof req.body === 'object') {
+        data = req.body;
+    } else if (typeof req.body === 'string') {
+        try { data = JSON.parse(req.body); } catch { data = {}; }
+    } else {
+        data = await new Promise((resolve) => {
+            let raw = '';
+            req.on('data', chunk => raw += chunk.toString());
+            req.on('end', () => {
+                try { resolve(JSON.parse(raw || '{}')); }
+                catch { resolve({}); }
+            });
+        });
+    }
+
+    try {
+        if (!data.amount) {
+            res.writeHead(400, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify({ error: 'Missing payment amount' }));
+            return;
+        }
+
+        // ── Interswitch Official Test/Demo Credentials ──────────────────
+        // Source: https://docs.interswitchgroup.com/docs/default-test-credentials
+        const MERCHANT_CODE = "MX6072";
+        const PAY_ITEM_ID   = "9405967";
+
+        const protocol = req.headers['x-forwarded-proto'] || 'http';
+        const host = req.headers['host'] || 'localhost:3000';
+        const SITE_REDIRECT_URL = `${protocol}://${host}/`;
+
+        const txn_ref = 'NC-' + Date.now();
+        let rawAmount = parseFloat(data.amount) || 0;
+        // Interswitch expects amounts in the lowest currency unit (Kobo for NGN)
+        const amountInKobo = Math.round(rawAmount * 100);
+
+        console.log(`[PAYMENT INIT] Ref: ${txn_ref}, Amount: ${amountInKobo} Kobo, Merchant: ${MERCHANT_CODE}`);
+
+        res.writeHead(200, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({
+            success: true,
+            payment: {
+                merchant_code: MERCHANT_CODE,
+                pay_item_id: PAY_ITEM_ID,
+                txn_ref,
+                amount: amountInKobo,
+                currency: 566,            // ISO 4217 numeric code for NGN
+                site_redirect_url: SITE_REDIRECT_URL,
+                mode: 'TEST'              // Sandbox mode
             }
-
-            // ── Interswitch Official Test/Demo Credentials ──────────────────
-            // Source: https://docs.interswitchgroup.com/docs/default-test-credentials
-            const MERCHANT_CODE = "MX6072";
-            const PAY_ITEM_ID   = "9405967";
-
-            const protocol = req.headers['x-forwarded-proto'] || 'http';
-            const host = req.headers['host'] || 'localhost:3000';
-            const SITE_REDIRECT_URL = `${protocol}://${host}/`;
-
-            const txn_ref = 'NC-' + Date.now();
-            let rawAmount = parseFloat(data.amount) || 0;
-            // Interswitch expects amounts in the lowest currency unit (Kobo for NGN)
-            const amountInKobo = Math.round(rawAmount * 100);
-
-            console.log(`[PAYMENT INIT] Ref: ${txn_ref}, Amount: ${amountInKobo} Kobo, Merchant: ${MERCHANT_CODE}`);
-
-            res.writeHead(200, { 'Content-Type': 'application/json' });
-            res.end(JSON.stringify({
-                success: true,
-                payment: {
-                    merchant_code: MERCHANT_CODE,
-                    pay_item_id: PAY_ITEM_ID,
-                    txn_ref,
-                    amount: amountInKobo,
-                    currency: 566,            // ISO 4217 numeric code for NGN
-                    site_redirect_url: SITE_REDIRECT_URL,
-                    mode: 'TEST'              // Sandbox mode
-                }
-            }));
-        } catch (err) {
-            console.error("[PAYMENT JSON ERROR]", err);
+        }));
+    } catch (err) {
+        console.error("[PAYMENT ERROR]", err.message);
+        if (!res.headersSent) {
             res.writeHead(400, { 'Content-Type': 'application/json' });
             res.end(JSON.stringify({ error: 'Invalid JSON request' }));
         }
-    });
+    }
 };

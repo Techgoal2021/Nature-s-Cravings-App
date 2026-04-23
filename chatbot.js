@@ -344,19 +344,39 @@ const ChatbotSystem = {
                 body: JSON.stringify({ message: text })
             });
 
-            const data = await res.json();
             this.hideTyping();
 
-            if (res.ok && data.reply) {
+            if (!res.ok) {
+                const errorData = await res.json().catch(() => ({}));
+                throw new Error(errorData.error || `Server Error (${res.status})`);
+            }
+
+            const data = await res.json();
+            if (data.reply) {
                 this.history.push({ text: data.reply, sender: 'bot' });
                 this.renderMessage(data.reply, 'bot');
                 this.saveHistory();
+                
+                if (data.warning) {
+                    console.warn('[CHATBOT] Server warning:', data.warning);
+                }
             } else {
-                throw new Error("Failed to reach AI");
+                throw new Error("Empty response from AI");
             }
         } catch(err) {
             this.hideTyping();
-            const errorMsg = "I am temporarily disconnected from my AI servers! Make sure your Node.js backend is running correctly.";
+            let errorMsg = "I'm having trouble connecting to my AI brain right now. 🧠";
+            
+            if (err.message.includes('Failed to fetch')) {
+                errorMsg = "Network error! Please check if your internet or local server is running. 🌐";
+            } else if (err.message.includes('400')) {
+                errorMsg = "I didn't quite catch that. Could you try rephrasing? ✍️";
+            } else if (err.message.includes('500')) {
+                errorMsg = "My servers are feeling a bit under the weather. Please try again in a moment! 🤒";
+            } else {
+                errorMsg = `Error: ${err.message}. I'll try to be back online soon!`;
+            }
+            
             this.renderMessage(errorMsg, 'bot');
         }
     }

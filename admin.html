@@ -87,6 +87,33 @@
                     </div>
                 </div>
             </section>
+
+            <section id="ordersSection" class="admin-content">
+                <div class="recent-feed">
+                    <div class="feed-header">
+                        <h2>Order Management</h2>
+                        <button onclick="AdminDashboard.loadOrders()">Refresh <i class="fa-solid fa-rotate"></i></button>
+                    </div>
+                    <div class="table-container">
+                        <table id="ordersTable">
+                            <thead>
+                                <tr>
+                                    <th>Order ID</th>
+                                    <th>Customer</th>
+                                    <th>Date</th>
+                                    <th>Total</th>
+                                    <th>Items</th>
+                                </tr>
+                            </thead>
+                            <tbody id="ordersBody">
+                                <tr>
+                                    <td colspan="5" style="text-align:center;">No orders found yet.</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
         </main>
     </div>
 

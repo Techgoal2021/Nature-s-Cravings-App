@@ -1,5 +1,21 @@
 {
   "version": 2,
   "cleanUrls": true,
-  "trailingSlash": false
+  "trailingSlash": false,
+  "functions": {
+    "api/**/*.js": {
+      "runtime": "@vercel/node@3",
+      "maxDuration": 10
+    }
+  },
+  "rewrites": [
+    { "source": "/api/chat", "destination": "/api/chat" },
+    { "source": "/api/signin", "destination": "/api/signin" },
+    { "source": "/api/signup", "destination": "/api/signup" },
+    { "source": "/api/reset-password", "destination": "/api/reset-password" },
+    { "source": "/api/initiate-payment", "destination": "/api/initiate-payment" },
+    { "source": "/api/contact", "destination": "/api/contact" },
+    { "source": "/api/booking", "destination": "/api/booking" },
+    { "source": "/api/admin/bookings", "destination": "/api/admin/bookings" }
+  ]
 }

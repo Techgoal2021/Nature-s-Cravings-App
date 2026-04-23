@@ -21,71 +21,85 @@ module.exports = async (req, res) => {
         return;
     }
 
-    let body = '';
-    req.on('data', chunk => body += chunk.toString());
-    req.on('end', async () => {
-        try {
-            const data = JSON.parse(body || '{}');
-            if (!data.email || !data.password) {
-                res.writeHead(400, { 'Content-Type': 'application/json' });
-                res.end(JSON.stringify({ error: 'Missing credentials' }));
-                return;
+    // ── Parse body: Vercel provides req.body; local server.js streams manually ──
+    let data;
+    if (req.body && typeof req.body === 'object') {
+        data = req.body;
+    } else if (typeof req.body === 'string') {
+        try { data = JSON.parse(req.body); } catch { data = {}; }
+    } else {
+        data = await new Promise((resolve) => {
+            let raw = '';
+            req.on('data', chunk => raw += chunk.toString());
+            req.on('end', () => {
+                try { resolve(JSON.parse(raw || '{}')); }
+                catch { resolve({}); }
+            });
+        });
+    }
+
+    try {
+        if (!data.email || !data.password) {
+            res.writeHead(400, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify({ error: 'Missing credentials' }));
+            return;
+        }
+
+        const postData = JSON.stringify({ email: data.email, password: data.password });
+
+        const options = {
+            hostname: url.parse(SUPABASE_URL).hostname,
+            port: 443,
+            path: '/auth/v1/token?grant_type=password',
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'apikey': SUPABASE_KEY,
+                'Authorization': `Bearer ${SUPABASE_KEY}`,
+                'Content-Length': Buffer.byteLength(postData)
             }
+        };
 
-            const postData = JSON.stringify({ email: data.email, password: data.password });
-
-            const options = {
-                hostname: url.parse(SUPABASE_URL).hostname,
-                port: 443,
-                path: '/auth/v1/token?grant_type=password',
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'apikey': SUPABASE_KEY,
-                    'Authorization': `Bearer ${SUPABASE_KEY}`,
-                    'Content-Length': Buffer.byteLength(postData)
-                }
-            };
-
-            const supabaseReq = https.request(options, (supabaseRes) => {
-                let responseBody = '';
-                supabaseRes.on('data', d => responseBody += d);
-                supabaseRes.on('end', () => {
-                    try {
-                        const user = JSON.parse(responseBody);
-                        
-                        if (supabaseRes.statusCode >= 200 && supabaseRes.statusCode < 300) {
-                            const adminEmails = (process.env.ADMIN_EMAILS || "").split(",");
-                            if (user.user && user.user.email && adminEmails.includes(user.user.email)) {
-                                user.is_admin = true;
-                            }
-                            console.log(`[AUTH SUCCESS] User: ${user.user?.email}`);
-                        } else {
-                            console.warn(`[AUTH FAILED] Status: ${supabaseRes.statusCode}`, responseBody);
+        const supabaseReq = https.request(options, (supabaseRes) => {
+            let responseBody = '';
+            supabaseRes.on('data', d => responseBody += d);
+            supabaseRes.on('end', () => {
+                try {
+                    const user = JSON.parse(responseBody);
+                    
+                    if (supabaseRes.statusCode >= 200 && supabaseRes.statusCode < 300) {
+                        const adminEmails = (process.env.ADMIN_EMAILS || "").split(",");
+                        if (user.user && user.user.email && adminEmails.includes(user.user.email)) {
+                            user.is_admin = true;
                         }
-                        
-                        res.writeHead(supabaseRes.statusCode, { 'Content-Type': 'application/json' });
-                        res.end(JSON.stringify(user));
-                    } catch (err) {
-                        console.error("[SIGNIN PARSE ERROR] Body:", responseBody);
-                        res.writeHead(500, { 'Content-Type': 'application/json' });
-                        res.end(JSON.stringify({ error: 'Auth Server Response Error', detail: responseBody }));
+                        console.log(`[AUTH SUCCESS] User: ${user.user?.email}`);
+                    } else {
+                        console.warn(`[AUTH FAILED] Status: ${supabaseRes.statusCode}`, responseBody);
                     }
-                });
+                    
+                    res.writeHead(supabaseRes.statusCode, { 'Content-Type': 'application/json' });
+                    res.end(JSON.stringify(user));
+                } catch (err) {
+                    console.error("[SIGNIN PARSE ERROR] Body:", responseBody);
+                    res.writeHead(500, { 'Content-Type': 'application/json' });
+                    res.end(JSON.stringify({ error: 'Auth Server Response Error', detail: responseBody }));
+                }
             });
+        });
 
-            supabaseReq.on('error', (e) => {
-                console.error("[NETWORK ERROR] Supabase:", e.message);
-                res.writeHead(500, { 'Content-Type': 'application/json' });
-                res.end(JSON.stringify({ error: 'Network Error connecting to Supabase' }));
-            });
+        supabaseReq.on('error', (e) => {
+            console.error("[NETWORK ERROR] Supabase:", e.message);
+            res.writeHead(500, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify({ error: 'Network Error connecting to Supabase' }));
+        });
 
-            supabaseReq.write(postData);
-            supabaseReq.end();
-        } catch (err) {
-            console.error("[JSON ERROR] Request Body:", body);
+        supabaseReq.write(postData);
+        supabaseReq.end();
+    } catch (err) {
+        console.error("[SIGNIN ERROR]", err.message);
+        if (!res.headersSent) {
             res.writeHead(400, { 'Content-Type': 'application/json' });
             res.end(JSON.stringify({ error: 'Invalid JSON request' }));
         }
-    });
+    }
 };
