@@ -3,8 +3,7 @@ const fs = require('fs');
 const path = require('path');
 const url = require('url');
 
-const HOST = '127.0.0.1';
-const PORT = process.env.PORT || 8080;
+const HOST = '0.0.0.0';
 
 // ─── .env Loader ────────────────────────────────────────────────────────────
 const envPath = path.join(__dirname, '.env');
@@ -19,6 +18,9 @@ if (fs.existsSync(envPath)) {
     });
 }
 
+const PORT = process.env.PORT || 8080;
+console.log(`[DEBUG] Attempting to listen on port: ${PORT}`);
+
 // ─── MIME Types ──────────────────────────────────────────────────────────────
 const MIME = {
     '.html': 'text/html',
@@ -29,6 +31,7 @@ const MIME = {
     '.jpg':  'image/jpeg',
     '.jpeg': 'image/jpeg',
     '.webp': 'image/webp',
+    '.avif': 'image/avif',
     '.gif':  'image/gif',
     '.svg':  'image/svg+xml',
     '.ico':  'image/x-icon',
@@ -37,7 +40,7 @@ const MIME = {
 // ─── Server ──────────────────────────────────────────────────────────────────
 const server = http.createServer((req, res) => {
     const parsedUrl = url.parse(req.url, true);
-    const pathname  = parsedUrl.pathname;
+    const pathname  = decodeURIComponent(parsedUrl.pathname);
 
     // ── API Routing ──────────────────────────────────────────────────────────
     if (pathname.startsWith('/api/')) {
@@ -54,16 +57,23 @@ const server = http.createServer((req, res) => {
         if (fs.existsSync(apiFilePath)) {
             console.log(`[API] ${req.method} ${pathname}`);
             try {
+                // HOT-RELOAD: Clear the cache so changes to API files take effect without a restart
+                delete require.cache[require.resolve(apiFilePath)];
+                
                 const handler = require(apiFilePath);
                 if (typeof handler === 'function') {
-                    // Wrap in promise so async errors are caught too
-                    Promise.resolve(handler(req, res)).catch(err => {
-                        console.error(`[API UNHANDLED] ${pathname}:`, err.message);
-                        if (!res.headersSent) {
-                            res.writeHead(500, { 'Content-Type': 'application/json' });
-                            res.end(JSON.stringify({ error: 'Internal server error' }));
+                    // Optimized Async Wrapper: Ensures both sync and async errors are caught
+                    (async () => {
+                        try {
+                            await handler(req, res);
+                        } catch (err) {
+                            console.error(`[API RUNTIME ERROR] ${pathname}:`, err);
+                            if (!res.headersSent) {
+                                res.writeHead(500, { 'Content-Type': 'application/json' });
+                                res.end(JSON.stringify({ error: 'Internal server error', message: err.message }));
+                            }
                         }
-                    });
+                    })();
                     return;
                 }
             } catch (err) {
@@ -122,18 +132,22 @@ const server = http.createServer((req, res) => {
 // ── Error Resilience ─────────────────────────────────────────────────────────
 server.on('error', (err) => {
     if (err.code === 'EADDRINUSE') {
-        console.error(`\n❌ Port ${PORT} is already in use. Try: PORT=3001 node server.js\n`);
+        console.error(`\n❌ Port ${PORT} is already in use by another process.`);
+        console.error(`💡 Try: PORT=${parseInt(PORT) + 1} node server.js OR kill the process on port ${PORT}.\n`);
+    } else if (err.code === 'EPERM') {
+        console.error(`\n❌ Permission denied (EPERM) while trying to listen on ${HOST}:${PORT}.`);
+        console.error(`💡 This can happen if port ${PORT} is in a "TIME_WAIT" state or restricted by your OS.\n`);
     } else {
         console.error('[SERVER ERROR]', err.message);
     }
     process.exit(1);
 });
 
-server.listen(PORT, HOST, () => {
+server.listen(PORT, () => {
     console.log(`
   🌿  Nature's Cravings — Running
   ──────────────────────────────────
-  Local: http://${HOST}:${PORT}
+  Local: http://localhost:${PORT}
   
   Press Ctrl+C to stop.
     `);

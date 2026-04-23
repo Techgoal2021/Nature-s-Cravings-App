@@ -15,6 +15,9 @@ const CartSystem = {
         
         // Expose to globally accessible level for inline HTML onclicks 
         window.addToCart = this.addItem.bind(this);
+
+        // Pre-load Interswitch SDK in background so checkout is instant
+        this._preloadInlineCheckoutSDK();
     },
 
     save() {
@@ -250,6 +253,76 @@ const CartSystem = {
         totalEl.innerText = '$' + Number(this.getTotal()).toFixed(2);
     },
 
+    // ── Pre-load SDK on page load (non-blocking, silent) ─────────────────
+    _preloadInlineCheckoutSDK() {
+        if (window.webpayCheckout || document.getElementById('iswSDKScript')) return;
+        const script = document.createElement('script');
+        script.id = 'iswSDKScript';
+        script.src = 'https://newwebpay.qa.interswitchng.com/inline-checkout.js';
+        script.async = true;
+        script.onload = () => console.log('[INTERSWITCH] SDK pre-loaded successfully.');
+        script.onerror = () => console.warn('[INTERSWITCH] SDK pre-load failed — will retry at checkout.');
+        document.body.appendChild(script);
+    },
+
+    // ── Load SDK with timeout (used at checkout time) ────────────────────
+    _loadInlineCheckoutSDK() {
+        return new Promise((resolve, reject) => {
+            if (window.webpayCheckout) {
+                resolve();
+                return;
+            }
+
+            // If pre-load script exists but hasn't finished, wait for it
+            const existing = document.getElementById('iswSDKScript');
+            if (existing) {
+                const startWait = Date.now();
+                const check = setInterval(() => {
+                    if (window.webpayCheckout) {
+                        clearInterval(check);
+                        resolve();
+                    } else if (Date.now() - startWait > 15000) {
+                        clearInterval(check);
+                        reject(new Error('Interswitch payment gateway is taking too long to respond. Please check your internet and try again.'));
+                    }
+                }, 300);
+                return;
+            }
+
+            // Fresh load with timeout
+            const script = document.createElement('script');
+            script.id = 'iswSDKScript';
+            script.src = 'https://newwebpay.qa.interswitchng.com/inline-checkout.js';
+            const timeout = setTimeout(() => {
+                reject(new Error('Interswitch payment gateway is taking too long to respond. Please check your internet and try again.'));
+            }, 15000);
+            script.onload = () => {
+                clearTimeout(timeout);
+                console.log('[INTERSWITCH] Inline Checkout SDK loaded.');
+                resolve();
+            };
+            script.onerror = () => {
+                clearTimeout(timeout);
+                reject(new Error('Failed to load Interswitch payment SDK. Check your internet connection.'));
+            };
+            document.body.appendChild(script);
+        });
+    },
+
+    // ── Reset the checkout button to its default state ────────────────────
+    _resetCheckoutBtn() {
+        const btn = document.getElementById('checkoutBtn');
+        const btnIcon = document.getElementById('btnIcon');
+        const btnText = document.getElementById('btnText');
+        const btnSpinner = document.getElementById('btnSpinner');
+        const loading = document.getElementById('checkoutLoading');
+        if (btn) btn.disabled = false;
+        if (btnIcon) btnIcon.style.display = 'inline-block';
+        if (btnText) btnText.innerText = 'Pay with Interswitch';
+        if (btnSpinner) btnSpinner.style.display = 'none';
+        if (loading) loading.style.display = 'none';
+    },
+
     async processCheckout() {
         const amount = this.getTotal();
         if (amount <= 0) return;
@@ -267,19 +340,13 @@ const CartSystem = {
         btnSpinner.style.display = 'block';
         loading.style.display = 'block';
 
-        const fakeRef = 'NC-' + Math.floor(Math.random() * 1000000);
-
         try {
-            // Save mock order to history
-            const pastOrders = JSON.parse(localStorage.getItem('nc_orders') || '[]');
-            pastOrders.push({
-                id: fakeRef,
-                date: new Date().toLocaleDateString(),
-                total: '$' + Number(this.getTotal()).toFixed(2),
-                items: [...this.items]
-            });
-            localStorage.setItem('nc_orders', JSON.stringify(pastOrders));
+            // 1. Load Interswitch SDK if not already loaded
+            await this._loadInlineCheckoutSDK();
 
+            btnText.innerText = 'Connecting to Gateway...';
+
+            // 2. Get payment parameters from our backend
             const res = await fetch('/api/initiate-payment', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -298,30 +365,96 @@ const CartSystem = {
                 throw new Error(data.error || 'Failed to initiate payment');
             }
 
-            // Construct Interswitch WebPay Hidden Form
-            const form = document.createElement('form');
-            form.method = 'POST';
-            form.action = data.interswitch_url;
-            
-            const payload = data.payload;
-            for (const key in payload) {
-                const input = document.createElement('input');
-                input.type = 'hidden';
-                input.name = key;
-                input.value = payload[key];
-                form.appendChild(input);
-            }
+            // 3. Save order to history before payment
+            const orderRef = data.payment.txn_ref;
+            const pastOrders = JSON.parse(localStorage.getItem('nc_orders') || '[]');
+            pastOrders.push({
+                id: orderRef,
+                date: new Date().toLocaleDateString(),
+                total: '$' + Number(this.getTotal()).toFixed(2),
+                items: [...this.items],
+                status: 'pending'
+            });
+            localStorage.setItem('nc_orders', JSON.stringify(pastOrders));
 
-            document.body.appendChild(form);
-            form.submit();
+            // 4. Launch Interswitch Inline Checkout popup
+            const cartRef = this;
+            const paymentRequest = {
+                merchant_code:     data.payment.merchant_code,
+                pay_item_id:       data.payment.pay_item_id,
+                txn_ref:           data.payment.txn_ref,
+                amount:            data.payment.amount,
+                currency:          data.payment.currency,
+                site_redirect_url: data.payment.site_redirect_url,
+                mode:              data.payment.mode,
+                onComplete: function(response) {
+                    console.log('[INTERSWITCH] Payment response:', response);
+                    
+                    // Update order status in local storage
+                    const orders = JSON.parse(localStorage.getItem('nc_orders') || '[]');
+                    const order = orders.find(o => o.id === orderRef);
+                    if (order) {
+                        order.status = (response.resp === '00') ? 'paid' : 'failed';
+                        order.gatewayRef = response.retRef || '';
+                        localStorage.setItem('nc_orders', JSON.stringify(orders));
+                    }
+
+                    if (response.resp === '00') {
+                        // ✅ Payment Successful
+                        cartRef.items = [];
+                        cartRef.save();
+                        cartRef.closeDrawer();
+                        
+                        // Show success notification
+                        const toast = document.createElement('div');
+                        toast.id = 'paymentSuccessToast';
+                        toast.style.cssText = `
+                            position: fixed; top: 20px; left: 50%; transform: translateX(-50%);
+                            background: linear-gradient(135deg, #1c3f2d, #2d6a4f); color: white;
+                            padding: 20px 40px; border-radius: 16px; z-index: 9999;
+                            font-family: 'Outfit', sans-serif; font-size: 1.1rem; font-weight: 600;
+                            box-shadow: 0 10px 40px rgba(0,0,0,0.25);
+                            animation: slideDown 0.5s ease forwards;
+                        `;
+                        toast.innerHTML = '<i class="fa-solid fa-circle-check" style="margin-right: 10px; color: #80ed99;"></i> Payment Successful! Thank you for your order.';
+                        document.body.appendChild(toast);
+                        
+                        // Add animation keyframes
+                        if (!document.getElementById('toastAnimStyle')) {
+                            const style = document.createElement('style');
+                            style.id = 'toastAnimStyle';
+                            style.textContent = `
+                                @keyframes slideDown { from { opacity: 0; top: -50px; } to { opacity: 1; top: 20px; } }
+                            `;
+                            document.head.appendChild(style);
+                        }
+
+                        setTimeout(() => toast.remove(), 5000);
+                    } else {
+                        // ❌ Payment Failed or Cancelled
+                        alert('Payment was not completed. Response: ' + (response.desc || response.resp || 'Unknown'));
+                    }
+                    
+                    cartRef._resetCheckoutBtn();
+                }
+            };
+
+            console.log('[INTERSWITCH] Launching checkout with:', paymentRequest);
+            btnText.innerText = 'Opening Payment...';
+
+            // Close the cart drawer so the popup is visible
+            this.closeDrawer();
+
+            // Small delay to allow drawer animation to complete
+            setTimeout(() => {
+                window.webpayCheckout(paymentRequest);
+                this._resetCheckoutBtn();
+            }, 400);
 
         } catch (err) {
+            console.error('[CHECKOUT ERROR]', err);
             alert("Checkout Error: " + err.message);
-            btn.disabled = false;
-            btnIcon.style.display = 'inline-block';
-            btnText.innerText = 'Pay with Interswitch';
-            btnSpinner.style.display = 'none';
-            loading.style.display = 'none';
+            this._resetCheckoutBtn();
         }
     }
 };
